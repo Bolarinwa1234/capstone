@@ -338,7 +338,7 @@ def ask_question(request: Question):
 
 User's question: {request.question}
 
-Provide helpful, actionable career advice. Keep your response concise but informative (150 words maximum). Focus on practical steps the user can take."""
+Provide helpful, actionable career advice. Keep your response concise but informative (1 paragraph maximum). Focus on practical steps the user can take."""
         
         answer = call_llm(prompt)
         logger.info(f"Generated answer for question: {request.question}")
