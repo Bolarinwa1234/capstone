@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Career Advisor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+
+        .card h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .icon {
+            width: 24px;
+            height: 24px;
+            fill: #667eea;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            background: rgba(255,255,255,0.8);
+        }
+
+        input[type="text"]:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .results {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            margin-top: 30px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            display: none;
+        }
+
+        .results.show {
+            display: block;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .results h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
+        .skill-list, .career-list {
+            list-style: none;
+        }
+
+        .skill-list li, .career-list li {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+            transition: transform 0.2s ease;
+        }
+
+        .skill-list li:hover, .career-list li:hover {
+            transform: translateX(5px);
+        }
+
+        .answer-box {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .error {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            display: none;
+        }
+
+        .error.show {
+            display: block;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        .question-section {
+            grid-column: 1 / -1;
+            margin-top: 30px;
+        }
+
+        .api-status {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-online {
+            background: #28a745;
+            box-shadow: 0 0 10px rgba(40, 167, 69, 0.5);
+        }
+
+        .status-offline {
+            background: #dc3545;
+            box-shadow: 0 0 10px rgba(220, 53, 69, 0.5);
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .card {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 AI Career Advisor</h1>
+            <p>Discover your career path with AI-powered insights</p>
+            <div class="api-status">
+                <span class="status-indicator" id="statusIndicator"></span>
+                <span id="statusText">Checking API status...</span>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <!-- Career Recommendations Section -->
+            <div class="card">
+                <h2>
+                    <svg class="icon" viewBox="0 0 24 24">
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                    </svg>
+                    Find Your Perfect Career
+                </h2>
+                <form id="careerForm">
+                    <div class="form-group">
+                        <label for="skills">Your Skills (comma-separated)</label>
+                        <input type="text" id="skills" placeholder="e.g., Python, JavaScript, Data Analysis, Project Management">
+                    </div>
+                    <button type="submit" class="btn">Get Career Recommendations</button>
+                </form>
+                <div class="loading" id="careerLoading">
+                    <div class="spinner"></div>
+                    <p>Finding perfect careers for you...</p>
+                </div>
+                <div class="error" id="careerError"></div>
+            </div>
+
+            <!-- Skill Gap Analysis Section -->
+            <div class="card">
+                <h2>
+                    <svg class="icon" viewBox="0 0 24 24">
+                        <path d="M9 11H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zm2-7h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z"/>
+                    </svg>
+                    Skill Gap Analysis
+                </h2>
+                <form id="skillGapForm">
+                    <div class="form-group">
+                        <label for="currentSkills">Current Skills</label>
+                        <input type="text" id="currentSkills" placeholder="e.g., HTML, CSS, Basic JavaScript">
+                    </div>
+                    <div class="form-group">
+                        <label for="desiredJob">Desired Job Title</label>
+                        <input type="text" id="desiredJob" placeholder="e.g., Full Stack Developer">
+                    </div>
+                    <button type="submit" class="btn">Analyze Skill Gap</button>
+                </form>
+                <div class="loading" id="skillGapLoading">
+                    <div class="spinner"></div>
+                    <p>Analyzing your skill gaps...</p>
+                </div>
+                <div class="error" id="skillGapError"></div>
+            </div>
+        </div>
+
+        <!-- Ask Question Section -->
+        <div class="card question-section">
+            <h2>
+                <svg class="icon" viewBox="0 0 24 24">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/>
+                </svg>
+                Ask a Career Question
+            </h2>
+            <form id="questionForm">
+                <div class="form-group">
+                    <label for="question">Your Question</label>
+                    <textarea id="question" placeholder="e.g., How can I transition from marketing to data science?"></textarea>
+                </div>
+                <button type="submit" class="btn">Get Expert Advice</button>
+            </form>
+            <div class="loading" id="questionLoading">
+                <div class="spinner"></div>
+                <p>Getting expert advice...</p>
+            </div>
+            <div class="error" id="questionError"></div>
+        </div>
+
+        <!-- Results Section -->
+        <div class="results" id="results">
+            <div id="careerResults" style="display: none;">
+                <h3>🎯 Recommended Careers</h3>
+                <ul class="career-list" id="careerList"></ul>
+            </div>
+
+            <div id="skillGapResults" style="display: none;">
+                <h3>📚 Skills You Should Learn</h3>
+                <ul class="skill-list" id="skillList"></ul>
+            </div>
+
+            <div id="questionResults" style="display: none;">
+                <h3>💡 Expert Advice</h3>
+                <div class="answer-box" id="answerBox"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:8000';
+
+        // Check API status on page load
+        async function checkAPIStatus() {
+            const statusIndicator = document.getElementById('statusIndicator');
+            const statusText = document.getElementById('statusText');
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/health`);
+                if (response.ok) {
+                    statusIndicator.className = 'status-indicator status-online';
+                    statusText.textContent = 'API Online';
+                } else {
+                    throw new Error('API not responding');
+                }
+            } catch (error) {
+                statusIndicator.className = 'status-indicator status-offline';
+                statusText.textContent = 'API Offline';
+                console.error('API Status Check Failed:', error);
+            }
+        }
+
+        // Utility functions
+        function showLoading(loadingId) {
+            document.getElementById(loadingId).classList.add('show');
+        }
+
+        function hideLoading(loadingId) {
+            document.getElementById(loadingId).classList.remove('show');
+        }
+
+        function showError(errorId, message) {
+            const errorElement = document.getElementById(errorId);
+            errorElement.textContent = message;
+            errorElement.classList.add('show');
+            setTimeout(() => {
+                errorElement.classList.remove('show');
+            }, 5000);
+        }
+
+        function showResults() {
+            document.getElementById('results').classList.add('show');
+        }
+
+        function hideAllResults() {
+            const resultSections = ['careerResults', 'skillGapResults', 'questionResults'];
+            resultSections.forEach(id => {
+                document.getElementById(id).style.display = 'none';
+            });
+        }
+
+        // Career Recommendations Form
+        document.getElementById('careerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const skills = document.getElementById('skills').value.trim();
+            if (!skills) {
+                showError('careerError', 'Please enter your skills');
+                return;
+            }
+
+            showLoading('careerLoading');
+            hideAllResults();
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/get-careers`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ skills: skills })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.detail || 'Failed to get career recommendations');
+                }
+
+                const data = await response.json();
+                
+                // Display results
+                const careerList = document.getElementById('careerList');
+                careerList.innerHTML = '';
+                
+                data.recommended_careers.forEach(career => {
+                    const li = document.createElement('li');
+                    li.textContent = career;
+                    careerList.appendChild(li);
+                });
+
+                document.getElementById('careerResults').style.display = 'block';
+                showResults();
+
+            } catch (error) {
+                console.error('Career recommendation error:', error);
+                showError('careerError', error.message);
+            } finally {
+                hideLoading('careerLoading');
+            }
+        });
+
+        // Skill Gap Analysis Form
+        document.getElementById('skillGapForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const currentSkills = document.getElementById('currentSkills').value.trim();
+            const desiredJob = document.getElementById('desiredJob').value.trim();
+            
+            if (!currentSkills || !desiredJob) {
+                showError('skillGapError', 'Please fill in both current skills and desired job');
+                return;
+            }
+
+            showLoading('skillGapLoading');
+            hideAllResults();
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/career-advice`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        desired_job: desiredJob,
+                        skills: { skills: currentSkills }
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.detail || 'Failed to get skill gap analysis');
+                }
+
+                const data = await response.json();
+                
+                // Display results
+                const skillList = document.getElementById('skillList');
+                skillList.innerHTML = '';
+                
+                data.recommended_skills.forEach(skill => {
+                    const li = document.createElement('li');
+                    li.textContent = skill;
+                    skillList.appendChild(li);
+                });
+
+                document.getElementById('skillGapResults').style.display = 'block';
+                showResults();
+
+            } catch (error) {
+                console.error('Skill gap analysis error:', error);
+                showError('skillGapError', error.message);
+            } finally {
+                hideLoading('skillGapLoading');
+            }
+        });
+
+        // Ask Question Form
+        document.getElementById('questionForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const question = document.getElementById('question').value.trim();
+            if (!question) {
+                showError('questionError', 'Please enter your question');
+                return;
+            }
+
+            showLoading('questionLoading');
+            hideAllResults();
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/ask-question`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ question: question })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.detail || 'Failed to get answer');
+                }
+
+                const data = await response.json();
+                
+                // Display results
+                const answerBox = document.getElementById('answerBox');
+                answerBox.textContent = data.answer;
+
+                document.getElementById('questionResults').style.display = 'block';
+                showResults();
+
+            } catch (error) {
+                console.error('Question error:', error);
+                showError('questionError', error.message);
+            } finally {
+                hideLoading('questionLoading');
+            }
+        });
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', () => {
+            checkAPIStatus();
+            
+            // Check API status every 30 seconds
+            setInterval(checkAPIStatus, 30000);
+        });
+    </script>
+</body>
+</html>
