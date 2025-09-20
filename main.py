@@ -34,7 +34,7 @@ class PromptRequest(BaseModel):
     prompt: str
 
 class UserSkillsRequest(BaseModel):
-    skills: str  # user skills as comma seperated strings
+    skills: list  # user skills as a list
 
 class DesiredJobRequest(BaseModel):
     desired_job: str 
@@ -264,12 +264,11 @@ Example format:
 
 @app.post("/get-careers")
 def get_careers_from_user_input(request: UserSkillsRequest):
-    """User-friendly endpoint - accepts skills as comma-separated string"""
     try:
         logger.info(f"Processing career recommendations for skills: {request.skills}")
         
         # Clean and parse the skills string
-        skills_list = [skill.strip().title() for skill in request.skills.split(",") if skill.strip()]
+        skills_list = request.skills
         
         if not skills_list:
             raise HTTPException(status_code=400, detail="Please provide at least one skill")
