@@ -54,7 +54,7 @@ def call_llm(prompt: str, retries: int = 3) -> str:
     }
     
     payload = {
-        "model": "deepseek/deepseek-r1:free",
+        "model": "deepseek/deepseek-chat-v3.1"
         "messages": [
             {"role": "user", "content": prompt}
         ],
