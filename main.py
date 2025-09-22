@@ -124,7 +124,7 @@ def call_llm(prompt: str, retries: int = 3) -> str:
                     logger.warning(f"Rate limited, attempt {attempt + 1}/{retries + 1}")
                     if attempt < retries:
                         import time
-                        wait_time = (attempt + 1) * 2  # Exponential backoff
+                        wait_time = (attempt + 2) * 2  # Exponential backoff
                         logger.info(f"Waiting {wait_time} seconds before retry...")
                         time.sleep(wait_time)
                         continue
@@ -264,6 +264,7 @@ Example format:
 
 @app.post("/get-careers")
 def get_careers_from_user_input(request: UserSkillsRequest):
+    """User-friendly endpoint - accepts skills as comma-separated string"""
     try:
         logger.info(f"Processing career recommendations for skills: {request.skills}")
         
@@ -337,7 +338,7 @@ def ask_question(request: Question):
 
 User's question: {request.question}
 
-Provide helpful, actionable career advice. Keep your response concise but informative (1 paragraph maximum). Focus on practical steps the user can take."""
+Provide helpful, actionable career advice. Keep your response concise but informative (1 paragraph). Focus on practical steps the user can take."""
         
         answer = call_llm(prompt)
         logger.info(f"Generated answer for question: {request.question}")
